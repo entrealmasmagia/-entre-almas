@@ -79,7 +79,7 @@ function save(){const form=$('editorForm');if(!form.reportValidity())return fals
 if ($('editorForm')) $('editorForm').onsubmit=e=>{e.preventDefault();save()};
 if ($('exportHtml')) $('exportHtml').onclick=()=>{if(!save())return;const clone=document.documentElement.cloneNode(true);clone.querySelector('#site-data').textContent=JSON.stringify(config).replace(/</g,'\\u003c');clone.querySelector('#editor').removeAttribute('open');clone.querySelector('#editorRows').innerHTML='';clone.querySelector('#editorStatus').textContent='';clone.querySelectorAll('input').forEach(el=>{el.removeAttribute('checked');if(el.closest('#editor'))el.removeAttribute('value')});const blob=new Blob(['<!DOCTYPE html>\n'+clone.outerHTML],{type:'text/html;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='entre_almas_rituais.html';a.click();setTimeout(()=>URL.revokeObjectURL(url),3000);$('editorStatus').textContent='HTML gerado. Substitua o arquivo na hospedagem para atualizar o site das clientes.'};render();
 </script> <script>
-const URL_PEDIDOS = "https://ymmuqllfkduvdmvgrfgr.supabase.co/functions/v1/entre-almas-pedidos";
+const URL_PEDIDOS = "https://ymmugllfkduvdmvgrfgr.supabase.co/functions/v1/entre-almas-pedidos";
 
 async function registrarPedido() {
   const botao = document.getElementById("order");
