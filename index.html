@@ -78,7 +78,7 @@ if ($('openEditor')) $('openEditor').onclick=()=>{draft=structuredClone(config.r
 function save(){const form=$('editorForm');if(!form.reportValidity())return false;const next={discount:Number(form.elements.discount.value),urgency:Number(form.elements.urgency.value),standard:form.elements.standard.value.trim(),express:form.elements.express.value.trim(),phone:form.elements.phone.value.trim(),rituals:structuredClone(draft)};if(!valid(next)){$('editorStatus').textContent='Confira os campos antes de salvar.';return false}config=next;if(!config.rituals.some(r=>r.id===selected))selected='';try{localStorage.setItem(key,JSON.stringify(config));$('editorStatus').textContent='Salvo neste navegador. Baixe o HTML atualizado para publicar as alterações.'}catch(e){$('editorStatus').textContent='O navegador não permitiu salvar localmente. Baixe o HTML para preservar as alterações.'}render();return true}
 if ($('editorForm')) $('editorForm').onsubmit=e=>{e.preventDefault();save()};
 if ($('exportHtml')) $('exportHtml').onclick=()=>{if(!save())return;const clone=document.documentElement.cloneNode(true);clone.querySelector('#site-data').textContent=JSON.stringify(config).replace(/</g,'\\u003c');clone.querySelector('#editor').removeAttribute('open');clone.querySelector('#editorRows').innerHTML='';clone.querySelector('#editorStatus').textContent='';clone.querySelectorAll('input').forEach(el=>{el.removeAttribute('checked');if(el.closest('#editor'))el.removeAttribute('value')});const blob=new Blob(['<!DOCTYPE html>\n'+clone.outerHTML],{type:'text/html;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='entre_almas_rituais.html';a.click();setTimeout(()=>URL.revokeObjectURL(url),3000);$('editorStatus').textContent='HTML gerado. Substitua o arquivo na hospedagem para atualizar o site das clientes.'};render();
-</script><<script>
+</script> <script>
 const URL_PEDIDOS = "https://ymmuqllfkduvdmvgrfgr.supabase.co/functions/v1/entre-almas-pedidos";
 
 async function registrarPedido() {
@@ -152,5 +152,5 @@ document.getElementById("order").addEventListener("click", async function(evento
     botao.textContent = "ENVIAR PEDIDO PELO WHATSAPP ↗️";
   }
 });
-</script>/body></html>
+</script> </body> </html>
 
