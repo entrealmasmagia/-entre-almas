@@ -78,4 +78,79 @@ $('openEditor').onclick=()=>{draft=structuredClone(config.rituals);['discount','
 function save(){const form=$('editorForm');if(!form.reportValidity())return false;const next={discount:Number(form.elements.discount.value),urgency:Number(form.elements.urgency.value),standard:form.elements.standard.value.trim(),express:form.elements.express.value.trim(),phone:form.elements.phone.value.trim(),rituals:structuredClone(draft)};if(!valid(next)){$('editorStatus').textContent='Confira os campos antes de salvar.';return false}config=next;if(!config.rituals.some(r=>r.id===selected))selected='';try{localStorage.setItem(key,JSON.stringify(config));$('editorStatus').textContent='Salvo neste navegador. Baixe o HTML atualizado para publicar as alterações.'}catch(e){$('editorStatus').textContent='O navegador não permitiu salvar localmente. Baixe o HTML para preservar as alterações.'}render();return true}
 $('editorForm').onsubmit=e=>{e.preventDefault();save()};
 $('exportHtml').onclick=()=>{if(!save())return;const clone=document.documentElement.cloneNode(true);clone.querySelector('#site-data').textContent=JSON.stringify(config).replace(/</g,'\\u003c');clone.querySelector('#editor').removeAttribute('open');clone.querySelector('#editorRows').innerHTML='';clone.querySelector('#editorStatus').textContent='';clone.querySelectorAll('input').forEach(el=>{el.removeAttribute('checked');if(el.closest('#editor'))el.removeAttribute('value')});const blob=new Blob(['<!DOCTYPE html>\n'+clone.outerHTML],{type:'text/html;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='entre_almas_rituais.html';a.click();setTimeout(()=>URL.revokeObjectURL(url),3000);$('editorStatus').textContent='HTML gerado. Substitua o arquivo na hospedagem para atualizar o site das clientes.'};render();
-</script></body></html>
+</script><<script>
+const URL_PEDIDOS = "https://ymmuqllfkduvdmvgrfgr.supabase.co/functions/v1/entre-almas-pedidos";
+
+async function registrarPedido() {
+  const botao = document.getElementById("order");
+
+  if (botao.getAttribute("aria-disabled") === "true") {
+    return;
+  }
+
+  const ritual = document.getElementById("ritual").value;
+  const pagamento = document.getElementById("payment").value;
+
+  const nome = prompt("Informe seu nome completo:");
+  if (!nome || !nome.trim()) return;
+
+  const whatsapp = prompt("Informe seu WhatsApp com DDD:");
+  if (!whatsapp || !whatsapp.trim()) return;
+
+  const resposta = await fetch(URL_PEDIDOS, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      nome_completo: nome.trim(),
+      whatsapp: whatsapp.replace(/\D/g, ""),
+      ritual_codigo: ritual,
+      forma_pagamento: pagamento,
+      urgencia: document.getElementById("urgent").checked,
+      desconto_solicitado: document.getElementById("first").checked
+    })
+  });
+
+  const resultado = await resposta.json();
+
+  if (!resposta.ok || !resultado.ok) {
+    throw new Error(resultado.erro || "Falha ao registrar pedido");
+  }
+
+  return resultado.pedido;
+}
+
+document.getElementById("order").addEventListener("click", async function(evento) {
+  evento.preventDefault();
+
+  if (this.getAttribute("aria-disabled") === "true") return;
+
+  const botao = this;
+  const linkWhatsapp = botao.href;
+
+  botao.style.pointerEvents = "none";
+  botao.textContent = "REGISTRANDO PEDIDO...";
+
+  try {
+    const pedido = await registrarPedido();
+
+    if (pedido) {
+      const separador = linkWhatsapp.includes("?") ? "&" : "?";
+      const mensagem = new URL(linkWhatsapp).searchParams.get("text") || "";
+      const texto = mensagem + "\nNúmero do pedido: " + pedido.id;
+
+      const destino = "https://wa.me/5561981363383?text=" +
+        encodeURIComponent(texto);
+
+      window.location.href = destino;
+    }
+  } catch (erro) {
+    alert("Não foi possível registrar o pedido: " + erro.message);
+  } finally {
+    botao.style.pointerEvents = "";
+    botao.textContent = "ENVIAR PEDIDO PELO WHATSAPP ↗️";
+  }
+});
+</script>/body></html>
+
